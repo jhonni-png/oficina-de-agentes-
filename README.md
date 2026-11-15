@@ -28,9 +28,15 @@ oficina-de-agentes-/
 │   └── ui.js           # Modo Demo, configuración, logs y arranque
 ├── sql/
 │   └── schema.sql      # Tabla agent_states, RLS y Realtime (referencia)
+├── docs/
+│   └── arquitectura.md # Flujo de datos, capas y seguridad
+├── vercel.json         # Cabeceras de seguridad para el despliegue
+├── LICENSE             # MIT
 ├── .gitignore
 └── README.md
 ```
+
+La explicación del flujo completo (navegador → n8n → Supabase → monitores 3D) está en [`docs/arquitectura.md`](docs/arquitectura.md). La red de agentes en n8n expuesta vía MCP vive en el repositorio complementario [**claude_agents-**](https://github.com/jhonni-png/claude_agents-).
 
 Los scripts son clásicos (no módulos) y comparten el ámbito global, por eso el **orden importa**. `scene3d.js` expone `window.updateAgentMonitor3D(agentId, status, screenText)`, que es el puente entre los datos y los monitores.
 
@@ -124,3 +130,7 @@ También puedes usar **Modo Demo**, que simula estados sin tocar Supabase ni gas
 - [ ] La página publicada en Vercel carga correctamente
 - [ ] n8n recibe una misión manual y actualiza `agent_states`
 - [ ] Una misión completa actualiza los monitores de los agentes
+
+## Licencia
+
+Distribuido bajo licencia [MIT](LICENSE).
