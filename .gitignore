@@ -1,0 +1,14 @@
+# Secretos: nunca subir claves
+.env
+.env.*
+*.pem
+
+# Sistema y editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Dependencias y Vercel
+node_modules/
+.vercel/
