@@ -42,7 +42,7 @@
   fs.lineTo(nx, -LZ);
   for (let k = 1; k <= 24; k++) { const a = a1 + (a0 - a1) * k / 24; fs.lineTo(LR * Math.sin(a), -LR * Math.cos(a)); }
   fs.closePath();
-  const lfloor = new THREE.Mesh(new THREE.ShapeGeometry(fs), M(0x6b5b4b, 0.9));
+  const lfloor = new THREE.Mesh(new THREE.ShapeGeometry(fs), M(0x4f4136, 0.9));
   lfloor.rotation.x = -Math.PI / 2;
   lfloor.position.y = 0.02;
   lfloor.receiveShadow = true;
