@@ -1,11 +1,12 @@
+
 /* =====================================================================
    // === INICIO BLOQUE MODELADO 3D DEEPSEEK ===
    ---------------------------------------------------------------------
-   OFICINA CORPORATIVA EJECUTIVA
+   OFICINA CORPORATIVA EJECUTIVA (escena base)
    Sala de juntas con ventanales y vista a la ciudad, escritorios
    ejecutivos, agentes de bloques y cubo central que refleja el estado
-   global. Paleta: hueso, arena, café, azul marino, salvia, mostaza y
-   terracota. Puente con los datos: window.updateAgentMonitor3D().
+   global. Puente con los datos: window.updateAgentMonitor3D().
+   La decoración vive en decor.js y lounge.js; el arranque, en boot.js.
    ===================================================================== */
 (function buildExecutiveOffice3D() {
   'use strict';
@@ -16,12 +17,12 @@
 
   /* ============ PALETA Y CONSTANTES ============ */
   const PALETTE = {
-    brass: 0xb89a5a, brassLight: 0xe3cf9a, brassDark: 0x7d6a3e,
-    warm: 0xfff4e0, warmDeep: 0xffe2b0,
+    brass: 0x8c7f6e, brassLight: 0xbdb2a0, brassDark: 0x5a5148,
+    warm: 0xffe9d6, warmDeep: 0xffd9b8,
     cool: 0xb7ad9a, purple: 0x6f8fb5,
-    wood: 0x8a6347, woodLight: 0xa57c5a,
+    wood: 0x7a6450, woodLight: 0x947a62,
     leather: 0x2e2b28, leatherLight: 0x45403a,
-    marble: 0xf3eee3,
+    marble: 0x4a4038,
     navy: 0x2f4258
   };
 
@@ -44,8 +45,8 @@
 
   /* ============ ESCENA ============ */
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0xd9ccb4);
-  scene.fog = new THREE.Fog(0xd9ccb4, 45, 140);
+  scene.background = new THREE.Color(0x8a8178);
+  scene.fog = new THREE.Fog(0x8a8178, 45, 140);
 
   const camera = new THREE.PerspectiveCamera(
     44,
@@ -82,9 +83,9 @@
   const skyMat = new THREE.ShaderMaterial({
     side: THREE.BackSide, depthWrite: false,
     uniforms: {
-      topColor: { value: new THREE.Color(0xa9c3da) },
-      midColor: { value: new THREE.Color(0xc9d6e0) },
-      lowColor: { value: new THREE.Color(0xe0d5c0) }
+      topColor: { value: new THREE.Color(0x4a4f5c) },
+      midColor: { value: new THREE.Color(0x8b8580) },
+      lowColor: { value: new THREE.Color(0xb5a899) }
     },
     vertexShader: `
       varying vec3 vWorldPos;
@@ -172,13 +173,13 @@
   [moonA, moonB].forEach((m) => { m.core.visible = m.glow.visible = m.halo.visible = false; });
 
   /* ============ ILUMINACIÓN ============ */
-  scene.add(new THREE.AmbientLight(0xfff6e8, 0.34));
+  scene.add(new THREE.AmbientLight(0xffeedd, 0.36));
 
-  const hemi = new THREE.HemisphereLight(0xf3eee3, 0xb8a98f, 0.4);
+  const hemi = new THREE.HemisphereLight(0xfff0e0, 0x5a4e44, 0.42);
   hemi.position.set(0, 30, 0);
   scene.add(hemi);
 
-  const keyWarm = new THREE.DirectionalLight(0xfff1dc, 0.65);
+  const keyWarm = new THREE.DirectionalLight(0xffe3c4, 0.7);
   keyWarm.position.set(8, 14, 6);
   keyWarm.castShadow = true;
   keyWarm.shadow.mapSize.set(2048, 2048);
@@ -192,11 +193,11 @@
   keyWarm.shadow.normalBias = 0.02;
   scene.add(keyWarm);
 
-  const rimCool = new THREE.DirectionalLight(0xcfe0ff, 0.3);
+  const rimCool = new THREE.DirectionalLight(0xffd2b0, 0.28);
   rimCool.position.set(0, 8, -20);
   scene.add(rimCool);
 
-  const rimPurple = new THREE.DirectionalLight(0xffffff, 0.15);
+  const rimPurple = new THREE.DirectionalLight(0xffc8a0, 0.15);
   rimPurple.position.set(-14, 6, -6);
   scene.add(rimPurple);
 
@@ -205,13 +206,13 @@
     const c = document.createElement('canvas');
     c.width = c.height = 1024;
     const ctx = c.getContext('2d');
-    ctx.fillStyle = '#c4ae8c';
+    ctx.fillStyle = '#7a6a5a';
     ctx.fillRect(0, 0, 1024, 1024);
     for (let i = 0; i < 4000; i++) {
-      ctx.fillStyle = `rgba(110,85,60,${Math.random() * 0.05})`;
+      ctx.fillStyle = `rgba(40,25,12,${Math.random() * 0.05})`;
       ctx.fillRect(Math.random() * 1024, Math.random() * 1024, 2, 2);
     }
-    ctx.strokeStyle = '#a8926f';
+    ctx.strokeStyle = '#554a40';
     ctx.lineWidth = 4;
     for (let i = 0; i <= 4; i++) {
       ctx.beginPath(); ctx.moveTo(i * 256, 0); ctx.lineTo(i * 256, 1024); ctx.stroke();
@@ -238,7 +239,7 @@
 
   const subFloor = new THREE.Mesh(
     new THREE.CylinderGeometry(11.5, 8.0, 1.4, 64),
-    new THREE.MeshStandardMaterial({ color: 0x8a6e52, roughness: 0.9, metalness: 0.1 })
+    new THREE.MeshStandardMaterial({ color: 0x6a5d50, roughness: 0.9, metalness: 0.1 })
   );
   subFloor.position.y = -0.7;
   scene.add(subFloor);
@@ -336,11 +337,11 @@
   [0.05, 3.5, WALL_HEIGHT - 0.05].forEach(y => scene.add(createWallBand(y)));
 
   /* ============ CIUDAD AL FONDO ============ */
-  const ground = new THREE.Mesh(new THREE.CircleGeometry(160, 48), new THREE.MeshStandardMaterial({ color: 0xc9b999, roughness: 1 }));
+  const ground = new THREE.Mesh(new THREE.CircleGeometry(160, 48), new THREE.MeshStandardMaterial({ color: 0x6f6a62, roughness: 1 }));
   ground.rotation.x = -Math.PI / 2;
   ground.position.y = -1.45;
   scene.add(ground);
-  const cityMats = [0xb7a88c, 0x9fb3c6, 0xc4b59a].map((c) => new THREE.MeshStandardMaterial({ color: c, roughness: 0.9, metalness: 0 }));
+  const cityMats = [0x77716a, 0x6d737c, 0x857c70].map((c) => new THREE.MeshStandardMaterial({ color: c, roughness: 0.9, metalness: 0 }));
   for (let i = 0; i < 130; i++) {
     const a = (i / 130) * Math.PI * 2 + Math.random() * 0.03;
     const r = 42 + Math.random() * 38;
@@ -478,13 +479,15 @@
     bookshelf.add(detail);
   }
 
-  const bookColors = [0xf3eee3, 0xd8c8a8, 0x2f4258, 0xb5654a, 0x8a9a7b, 0xd4aa4f, 0x6b4a35, 0xc9d6e3];
+  const bookColors = [0x6e3b32, 0xa89a86, 0x2f4258, 0x9a5a45, 0x5f7a5f, 0x8c7f6e, 0x3a3029, 0x4f6a78, 0x5a4a58];
   for (let shelfIdx = 0; shelfIdx < 4; shelfIdx++) {
-    const y = 0.5 + shelfIdx * 1.1;
-    let z = -1.2;
-    while (z < 1.2) {
+    const y = 0.235 + shelfIdx * 1.1;
+    let z = -1.3;
+    const gap = shelfIdx % 2 === 0 ? [0.4, 1.1] : [-1.1, -0.4];
+    while (z < 1.3) {
       const bw = 0.06 + Math.random() * 0.1;
-      const bh = 0.35 + Math.random() * 0.2;
+      const bh = 0.5 + Math.random() * 0.4;
+      if (z + bw > gap[0] && z < gap[1]) { z = gap[1] + 0.02; continue; }
       const book = new THREE.Mesh(
         new THREE.BoxGeometry(0.5, bh, bw),
         new THREE.MeshStandardMaterial({
@@ -588,8 +591,8 @@
     const shade = new THREE.Mesh(
       new THREE.BoxGeometry(1.8, 0.05, 0.45),
       new THREE.MeshStandardMaterial({
-        color: 0xf4f6fa, roughness: 0.5, metalness: 0,
-        emissive: 0xffffff, emissiveIntensity: 0.9
+        color: 0xd8c4a8, roughness: 0.5, metalness: 0,
+        emissive: 0xffd9b0, emissiveIntensity: 0.8
       })
     );
     shade.position.y = 0.1;
@@ -928,7 +931,7 @@
       auditor:      { suit: 0x3f5246, skin: 0x8d5b3a, hair: 0x0c0c0c }
     })[cfg.id] || { suit: 0x2f4258, skin: 0xe0b894, hair: 0x2a1c12 };
     const mat = (color, extra) => new THREE.MeshStandardMaterial(Object.assign({ color, roughness: 0.75, metalness: 0.05 }, extra || {}));
-    const suitMat = mat(LOOK.suit), shirtMat = mat(0xf6f2ea), skinMat = mat(LOOK.skin);
+    const suitMat = mat(LOOK.suit), shirtMat = mat(0xd6d0c4), skinMat = mat(LOOK.skin);
     const hairMat = mat(LOOK.hair, { roughness: 0.9 });
     const tieMat = mat(0x2e2b28);
     const badgeMat = mat(cfg.accent);
@@ -953,7 +956,7 @@
     box(0.44, 0.3, 0.1, hairMat, 0, 2.04, -0.16);              // pelo (nuca)
 
     const visor = box(0.36, 0.08, 0.04, new THREE.MeshStandardMaterial({
-      color: 0xf3eee3, emissive: 0xf3eee3, emissiveIntensity: 0.9,
+      color: 0xffe9d6, emissive: 0xffe9d6, emissiveIntensity: 0.9,
       roughness: 0.1, metalness: 0.3, transparent: true, opacity: 0.9
     }), 0, 1.99, 0.21);
     box(0.4, 0.012, 0.05, steelMat, 0, 2.04, 0.21);
@@ -1056,7 +1059,7 @@
     // === Accesorios de escritorio ===
     const papers = new THREE.Mesh(
       new THREE.BoxGeometry(0.4, 0.03, 0.55),
-      new THREE.MeshStandardMaterial({ color: 0xeaeaea, roughness: 0.9 })
+      new THREE.MeshStandardMaterial({ color: 0xd8ccb2, roughness: 0.9 })
     );
     papers.position.set(1.0, 0.91, 0.3);
     papers.rotation.y = 0.15;
@@ -1161,7 +1164,7 @@
     // === Alfombra ===
     const rug = new THREE.Mesh(
       new THREE.PlaneGeometry(2.6, 2.6),
-      new THREE.MeshStandardMaterial({ color: 0x5a4636, roughness: 0.9, metalness: 0.05 })
+      new THREE.MeshStandardMaterial({ color: 0x4a423b, roughness: 0.9, metalness: 0.05 })
     );
     rug.rotation.x = -Math.PI / 2;
     rug.position.y = 0.004;
@@ -1386,22 +1389,14 @@
     new ResizeObserver(onResize).observe(container);
   }
 
-  /* ============ AJUSTE DE MATERIALES (aspecto mate corporativo) ============ */
-  scene.traverse((o) => {
-    const m = o.material;
-    if (m && !Array.isArray(m) && m.metalness !== undefined) {
-      m.metalness = Math.min(m.metalness, 0.25);
-      if (m.roughness !== undefined) m.roughness = Math.max(m.roughness, 0.35);
-    }
-  });
-
-  /* ============ ARRANQUE ============ */
-  animate();
-  if (typeof log === 'function') {
-    log('✦ Oficina corporativa lista: sala de juntas, escritorios ejecutivos y vista a la ciudad.', 'ok');
-  }
+  /* ============ PUENTE PARA decor.js, lounge.js Y boot.js ============
+     Esos archivos se cargan después de este y necesitan unos cuantos objetos
+     que viven dentro de esta función. */
+  window.OfficeCtx = {
+    scene, renderer, animate, createPlant, roundRect,
+    shelf: { bookshelf, shelfWood, brassDetail, bookColors }
+  };
 })();
 /* =====================================================================
    // === FIN BLOQUE MODELADO 3D DEEPSEEK ===
    ===================================================================== */
-

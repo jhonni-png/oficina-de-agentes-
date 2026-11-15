@@ -29,9 +29,18 @@ Oficina Digital 3D es la **capa visual** de un sistema de cuatro agentes de IA: 
 |---|---|---|
 | Interfaz | `index.html`, `css/styles.css`, `js/ui.js` | HUD, logs, configuración y Modo Demo |
 | Núcleo | `js/core.js` | Constantes, configuración en `localStorage`, logs y barra de agentes |
-| Escena 3D | `js/scene3d.js` | Oficina, escritorios, avatares, animación y monitores |
+| Escena 3D | `js/scene3d.js` | Escena base: luces, suelo, ventanales, mesa central, escritorios, avatares, animación y monitores |
+| Decoración | `js/decor.js` | Muro del fondo, cortinas, mural, cuadro de gatos, plantas y estantería |
+| Sala de descanso | `js/lounge.js` | Sillón, mesa de centro, mini nevera, alfombra de carreras, billar y baño |
+| Arranque | `js/boot.js` | Ajuste de materiales de toda la escena y arranque de la animación |
 | Datos | `js/supabase.js`, `sql/schema.sql` | Lectura inicial y suscripción a Realtime |
 | Misión | `js/mission.js` | Envío de la misión al webhook de n8n |
+
+### Cómo se reparte la escena 3D
+
+Los scripts son clásicos (no módulos) y se cargan en este orden: `core` → `scene3d` → `decor` → `lounge` → `boot` → `supabase` → `mission` → `ui`.
+
+`scene3d.js` construye la escena base y, al terminar, publica en `window.OfficeCtx` lo que los demás archivos necesitan (`scene`, `renderer`, `animate`, `createPlant`, `roundRect` y la estantería). `decor.js` añade su parte y deja sus ayudantes de modelado en `OfficeCtx.helpers` para que `lounge.js` los reutilice. `boot.js` va al final porque el ajuste de materiales tiene que recorrer todo lo que ya esté en la escena.
 
 ## Seguridad
 
