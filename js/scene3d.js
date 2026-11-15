@@ -206,13 +206,13 @@
     const c = document.createElement('canvas');
     c.width = c.height = 1024;
     const ctx = c.getContext('2d');
-    ctx.fillStyle = '#7a6a5a';
+    ctx.fillStyle = '#54463a';
     ctx.fillRect(0, 0, 1024, 1024);
     for (let i = 0; i < 4000; i++) {
       ctx.fillStyle = `rgba(40,25,12,${Math.random() * 0.05})`;
       ctx.fillRect(Math.random() * 1024, Math.random() * 1024, 2, 2);
     }
-    ctx.strokeStyle = '#554a40';
+    ctx.strokeStyle = '#3a3029';
     ctx.lineWidth = 4;
     for (let i = 0; i <= 4; i++) {
       ctx.beginPath(); ctx.moveTo(i * 256, 0); ctx.lineTo(i * 256, 1024); ctx.stroke();
