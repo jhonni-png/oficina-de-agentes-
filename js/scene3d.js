@@ -206,22 +206,35 @@
     const c = document.createElement('canvas');
     c.width = c.height = 1024;
     const ctx = c.getContext('2d');
-    ctx.fillStyle = '#54463a';
-    ctx.fillRect(0, 0, 1024, 1024);
-    for (let i = 0; i < 4000; i++) {
-      ctx.fillStyle = `rgba(40,25,12,${Math.random() * 0.05})`;
+    // Baldosas en damero de dos tonos, con junta oscura y un filo de luz arriba/izquierda
+    const T = 256;
+    for (let r = 0; r < 4; r++) {
+      for (let k = 0; k < 4; k++) {
+        ctx.fillStyle = (r + k) % 2 === 0 ? '#5d4d40' : '#4a3d32';
+        ctx.fillRect(k * T, r * T, T, T);
+      }
+    }
+    for (let i = 0; i < 6000; i++) {
+      ctx.fillStyle = `rgba(30,18,8,${Math.random() * 0.07})`;
       ctx.fillRect(Math.random() * 1024, Math.random() * 1024, 2, 2);
     }
-    ctx.strokeStyle = '#3a3029';
-    ctx.lineWidth = 4;
+    ctx.fillStyle = 'rgba(255,225,190,0.14)';
+    for (let r = 0; r < 4; r++) {
+      for (let k = 0; k < 4; k++) {
+        ctx.fillRect(k * T + 6, r * T + 6, T - 12, 4);
+        ctx.fillRect(k * T + 6, r * T + 6, 4, T - 12);
+      }
+    }
+    ctx.strokeStyle = '#1f1813';
+    ctx.lineWidth = 10;
     for (let i = 0; i <= 4; i++) {
-      ctx.beginPath(); ctx.moveTo(i * 256, 0); ctx.lineTo(i * 256, 1024); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(0, i * 256); ctx.lineTo(1024, i * 256); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(i * T, 0); ctx.lineTo(i * T, 1024); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0, i * T); ctx.lineTo(1024, i * T); ctx.stroke();
     }
     const tex = new THREE.CanvasTexture(c);
     if (THREE.sRGBEncoding !== undefined) tex.encoding = THREE.sRGBEncoding;
     tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
-    tex.repeat.set(3, 3);
+    tex.repeat.set(4, 4);
     tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
     return tex;
   }
