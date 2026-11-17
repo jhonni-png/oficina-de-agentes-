@@ -189,8 +189,10 @@
   keyWarm.shadow.camera.right = 14;
   keyWarm.shadow.camera.top = 14;
   keyWarm.shadow.camera.bottom = -14;
-  keyWarm.shadow.bias = -0.0006;
-  keyWarm.shadow.normalBias = 0.02;
+  // Bias ajustado para evitar shadow acne (las franjas radiales) sin causar
+  // peter-panning: normalBias mayor separa las muestras de la superficie.
+  keyWarm.shadow.bias = -0.0001;
+  keyWarm.shadow.normalBias = 0.04;
   scene.add(keyWarm);
 
   const rimCool = new THREE.DirectionalLight(0xffd2b0, 0.28);
@@ -254,7 +256,11 @@
     new THREE.CylinderGeometry(11.5, 8.0, 1.4, 64),
     new THREE.MeshStandardMaterial({ color: 0x6a5d50, roughness: 0.9, metalness: 0.1 })
   );
-  subFloor.position.y = -0.7;
+  // BUG FIX: la tapa superior del cilindro (altura 1.4 => +0.7) quedaba exactamente
+  // en y=0, el mismo plano del disco de mármol. Dos superficies coplanares con
+  // teselaciones distintas (96 vs 64 segmentos) generaban z-fighting: los rayos
+  // radiales dentados que se veían en el piso. Se baja 2 cm para separarlas.
+  subFloor.position.y = -0.72;
   scene.add(subFloor);
 
   // Anillos dorados
