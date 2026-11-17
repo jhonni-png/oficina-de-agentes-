@@ -1,12 +1,42 @@
 # 🏢 La Oficina de Agentes
 
-Una oficina en 3D donde cuatro agentes de IA (**Planificador**, **Arquitecto**, **Constructor** y **Auditor**) se sientan en sus escritorios a trabajar. Cada monitor muestra en vivo lo que está haciendo su agente: el estado y el texto llegan por **Supabase Realtime** y los orquesta **n8n**.
+Una oficina en 3D donde cuatro agentes de IA trabajan de verdad (bueno, casi): el **Planificador**, el **Arquitecto**, el **Constructor** y el **Auditor**. Cada uno tiene su escritorio y su monitor, y en el monitor ves en vivo qué está haciendo.
 
-Y ojo: esto no es una oficina-cárcel sin alma. Tiene mural, gatos motivacionales, cortinas, una estantería que sí parece usada y hasta una sala de descanso con billar para cuando nadie está en misión. 🎱
+Y ojo: no es una oficina-cárcel sin alma. Tiene mural, gatos motivacionales, cortinas, una estantería que sí parece usada y hasta una sala de descanso con billar para cuando nadie está en misión. 🎱
 
-Es un sitio estático (HTML + CSS + JavaScript puro), sin build ni nada raro.
+Todo es un sitio estático (HTML + CSS + JavaScript puro, con Three.js desde CDN): sin build, sin `npm install` pa' la parte visual y sin nada raro.
 
-> **🖥️ Centro de comando local (novedad):** hay una **computadora central** en la mesa de juntas. Haz clic en ella (o en el aviso 🖥️) para abrir un terminal desde el que delegas tareas. Un **puente local** (`bridge/mission-server.mjs`) recibe la misión y lanza el comando `/oficina` de OpenCode, que ejecuta el pipeline real de los 4 agentes con modelos gratuitos. Supabase/n8n siguen funcionando como alternativa en la nube.
+## 🤔 ¿De qué va este repo?
+
+Es la **capa visual** de un equipo de agentes. La página en sí no piensa: **muestra** lo que hacen los agentes y **manda** la misión que los pone a trabajar. Tú escribes una tarea, los cuatro agentes la van pasando de mano en mano (plan → arquitectura → código → auditoría) y los monitores se actualizan solos mientras tanto.
+
+Hay **dos maneras** de ponerlos a trabajar, y puedes usar la que prefieras:
+
+| Modo | Cómo funciona | Cuándo te sirve |
+|---|---|---|
+| ☁️ **En la nube** | La página manda la misión a un webhook de **n8n**, que orquesta a los agentes y escribe su estado en **Supabase**. Los monitores se enteran por **Realtime**. | Si ya tienes tu flujo n8n/Supabase montado o quieres desplegar en Vercel. |
+| 🖥️ **Local** | Haces clic en la **computadora de la mesa de juntas**, escribes la tarea y un **puente local** lanza `/oficina` en **OpenCode**, que corre los 4 agentes con modelos gratuitos. | Si quieres todo en tu máquina, sin montar servidores. |
+
+¿No tienes nada de eso? Pulsa **Modo Demo** y los agentes cambian de estado solitos, sin Supabase y sin gastar un solo token. Ideal pa' curiosear.
+
+## 🧬 ¿Cómo encaja con los otros repos?
+
+Este es el repo **principal y definitivo**. Los demás son piezas que lo acompañan:
+
+- 🏢 **oficina-de-agentes-** (este): la oficina 3D completa, con interfaz, puente local y todo el producto final.
+- ⚙️ [**opencode-pipeline**](https://github.com/jhonni-png/opencode-pipeline): la infraestructura base. Los mismos cuatro agentes y sus modelos gratuitos para OpenCode, pero sin la oficina 3D.
+- 🤖 [**claude_agents-**](https://github.com/jhonni-png/claude_agents-): la variante con los agentes montados en n8n y expuestos a Claude por MCP.
+
+## ⚡ Arranque rápido
+
+La forma más corta de verla funcionando, sin configurar nada:
+
+```bash
+python3 -m http.server 5500
+# abre http://localhost:5500 y pulsa "Modo Demo"
+```
+
+Si quieres que los agentes trabajen en serio, mira más abajo la sección **Centro de comando local** (todo en tu máquina) o la de **Conectar n8n** (en la nube).
 
 ## 👀 El tour de la oficina
 
@@ -34,7 +64,8 @@ Es un sitio estático (HTML + CSS + JavaScript puro), sin build ni nada raro.
 |---|---|
 | Escena 3D | [Three.js](https://threejs.org/) r147 + OrbitControls (CDN) |
 | Datos en tiempo real | [Supabase](https://supabase.com/) (PostgreSQL + Realtime) |
-| Orquestación | [n8n](https://n8n.io/) (webhook de misión) |
+| Orquestación en la nube | [n8n](https://n8n.io/) (webhook de misión) |
+| Ejecución local | [OpenCode](https://opencode.ai/) + puente HTTP en Node (`bridge/mission-server.mjs`) |
 | Alojamiento | GitHub + [Vercel](https://vercel.com/) (sitio estático) |
 
 ## 🗂️ Estructura
@@ -77,7 +108,7 @@ oficina-de-agentes-/
 
 Los scripts son clásicos (no módulos), así que **el orden importa**: `boot.js` tiene que ir después de `decor.js` y `lounge.js` porque ajusta los materiales de todo lo que ya esté en la escena. La explicación completa del flujo (navegador → n8n → Supabase → monitores 3D) está en [`docs/arquitectura.md`](docs/arquitectura.md).
 
-La red de agentes en n8n expuesta vía MCP vive en el repo hermano [**claude_agents-**](https://github.com/jhonni-png/claude_agents-).
+Los repos hermanos ([**opencode-pipeline**](https://github.com/jhonni-png/opencode-pipeline) y [**claude_agents-**](https://github.com/jhonni-png/claude_agents-)) están explicados arriba, en la sección de repos.
 
 ## 🖥️ Centro de comando local (computadora de la mesa)
 
@@ -93,7 +124,7 @@ Además del flujo n8n/Supabase, puedes ejecutar los agentes tú mismo en tu máq
 chmod +x scripts/start.sh && ./scripts/start.sh
 ```
 
-El script carga las claves en memoria (entrada oculto), instala el comando `/oficina` en OpenCode, arranca el puente en `127.0.0.1:8787` y abre la oficina. Luego:
+El script carga las claves en memoria (entrada oculta), instala el comando `/oficina` en OpenCode, arranca el puente en `127.0.0.1:8787` y abre la oficina. Luego:
 
 1. Haz clic en la **computadora de la mesa** (o en el aviso 🖥️). Se enfoca la cámara y se abre el terminal.
 2. Escribe la tarea (p. ej. `crea una API REST en Node`). El prefijo `/oficina` se añade solo.
