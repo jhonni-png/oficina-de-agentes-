@@ -1,0 +1,17 @@
+{
+  "name": "oficina-de-agentes",
+  "version": "1.0.0",
+  "description": "Oficina 3D donde cuatro agentes de IA trabajan en cadena, con puente local hacia OpenCode.",
+  "private": true,
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node bridge/mission-server.mjs",
+    "check": "node scripts/check.mjs",
+    "test": "node --test",
+    "sync-agents": "node scripts/sync-agents.mjs",
+    "check:agents": "node scripts/sync-agents.mjs --check"
+  }
+}

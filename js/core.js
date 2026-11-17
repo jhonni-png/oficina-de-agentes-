@@ -12,6 +12,33 @@ const agentState = {};
 AGENT_IDS.forEach((id) => { agentState[id] = { status: 'idle', screenText: '' }; });
 window.agentState = agentState;
 
+/* ---------- Puente local: dirección, token y peticiones ----------
+   El puente exige un token (cabecera X-Oficina-Token). Llega en la URL como
+   #bridge=<token> (lo imprime el puente y lo abre start.sh / start.ps1), se guarda
+   solo en sessionStorage y se quita de la barra de direcciones. */
+const BRIDGE_BASE = (location.protocol === 'http:' && location.port === '8787')
+  ? location.origin
+  : 'http://127.0.0.1:8787';
+const BRIDGE_TOKEN_KEY = 'oficina.bridgeToken';
+
+(function captureBridgeToken() {
+  try {
+    const m = /(?:^|[#&])bridge=([A-Za-z0-9_-]+)/.exec(location.hash);
+    if (!m) return;
+    sessionStorage.setItem(BRIDGE_TOKEN_KEY, m[1]);
+    history.replaceState(null, '', location.pathname + location.search);
+  } catch (_) { /* sin sessionStorage: el puente quedará sin token */ }
+})();
+
+function getBridgeToken() {
+  try { return sessionStorage.getItem(BRIDGE_TOKEN_KEY) || ''; } catch (_) { return ''; }
+}
+
+function bridgeFetch(pathname, opts = {}) {
+  const headers = Object.assign({}, opts.headers, { 'X-Oficina-Token': getBridgeToken() });
+  return fetch(BRIDGE_BASE + pathname, Object.assign({ cache: 'no-store' }, opts, { headers }));
+}
+
 function loadConfig() {
   return {
     SUPABASE_URL: localStorage.getItem(LS_KEYS.url) || '',

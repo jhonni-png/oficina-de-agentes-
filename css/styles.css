@@ -99,6 +99,11 @@ button.active { background: var(--working); border-color: var(--working); color:
   #hud-top { flex-wrap: wrap; }
   #mission-input { flex-basis: 100%; }
   #conn-status { top: 124px; }
+  /* Chips de agentes en 2 columnas y aviso de la computadora por encima de ellos */
+  #agent-bar { display: grid; grid-template-columns: 1fr 1fr; right: 12px; }
+  .agent-chip { min-width: 0; }
+  .agent-chip .screen { max-width: 100%; }
+  #computer-hint { bottom: 150px; width: calc(100vw - 24px); text-align: center; border-radius: 12px; }
 }
 @media (prefers-reduced-motion: reduce) { #logs-panel { transition: none; } }
 
@@ -151,3 +156,14 @@ button.active { background: var(--working); border-color: var(--working); color:
 #computer-send { background: #2f4258; border-color: #2f4258; color: #fff; font-weight: 700; }
 #computer-send:hover { background: #3f566f; }
 @media (max-width: 640px) { .computer-window { height: 92vh; } }
+
+/* ===== Avisos de arranque (sin JavaScript / sin Three.js) ===== */
+.boot-notice {
+  position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 60;
+  width: min(460px, calc(100vw - 32px)); padding: 18px 20px; text-align: center;
+  font-size: 15px; line-height: 1.5; color: var(--text);
+  background: var(--panel-solid); border: 1px solid var(--line); border-left: 4px solid var(--error);
+  border-radius: 12px; box-shadow: 0 12px 40px rgba(0, 0, 0, .18);
+}
+#cdn-error { display: none; }
+html[data-cdn-error] #cdn-error { display: block; }

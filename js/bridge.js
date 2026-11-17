@@ -1,19 +1,26 @@
 /* =====================================================================
    PUENTE LOCAL + PANEL DE CHAT (js/bridge.js)
-   - Hace polling a /state del mission-server (127.0.0.1:8787) y
+   - Hace polling a /state del mission-server (127.0.0.1:8787, con token) y
      actualiza los agentes cuando no hay Supabase.
    - Funciones del panel de la computadora: openComputer / closeComputer /
      sendFromComputer. La misión se envía al endpoint configurado.
    Se carga DESPUÉS de mission.js y ui.js.
    ===================================================================== */
 
-const BRIDGE_BASE = 'http://127.0.0.1:8787';
+let bridgeAuthWarned = false;
 let bridgeTimer = null;
 let lastAgentSig = '';
 
 async function pollBridge() {
   try {
-    const res = await fetch(BRIDGE_BASE + '/state', { cache: 'no-store' });
+    const res = await bridgeFetch('/state');
+    if (res.status === 401) {
+      if (!bridgeAuthWarned && typeof log === 'function') {
+        bridgeAuthWarned = true;
+        log('El puente pide token. Abre la oficina con scripts/start.sh (o start.ps1) o con la URL que imprime el puente.', 'warn');
+      }
+      return;
+    }
     if (!res.ok) return;
     const st = await res.json();
     if (!st || !st.agents) return;
@@ -129,7 +136,11 @@ document.addEventListener('DOMContentLoaded', () => {
   startBridge();
   // El puente local manda; Supabase queda como respaldo (lo conecta ui.js).
   fetch(BRIDGE_BASE + '/health', { cache: 'no-store' })
-    .then((r) => { if (r.ok && typeof log === 'function') log('Puente oficina conectado en 127.0.0.1:8787.', 'ok'); })
+    .then((r) => {
+      if (r.ok && typeof log === 'function') {
+        log('Puente oficina conectado en 127.0.0.1:8787' + (getBridgeToken() ? '.' : ', pero sin token (usa start.sh / start.ps1).'), getBridgeToken() ? 'ok' : 'warn');
+      }
+    })
     .catch(() => { if (typeof log === 'function') log('Puente no activo. Modo Demo disponible.', 'warn'); });
 });
 

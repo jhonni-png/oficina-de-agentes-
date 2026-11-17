@@ -1,6 +1,6 @@
 # Arquitectura
 
-Oficina Digital 3D es la **capa visual** de un sistema de cuatro agentes de IA: **Planificador**, **Arquitecto**, **Constructor** y **Auditor**. La página no ejecuta a los agentes; muestra su estado en tiempo real y envía la misión que los pone en marcha.
+La Oficina de Agentes es la **capa visual** de un sistema de cuatro agentes de IA: **Planificador**, **Arquitecto**, **Constructor** y **Auditor**. La página no ejecuta a los agentes; muestra su estado en tiempo real y envía la misión que los pone en marcha.
 
 ## Flujo de datos
 
@@ -43,6 +43,8 @@ Los scripts son clásicos (no módulos) y se cargan en este orden: `core` → `s
 `scene3d.js` construye la escena base y, al terminar, publica en `window.OfficeCtx` lo que los demás archivos necesitan (`scene`, `renderer`, `animate`, `createPlant`, `roundRect` y la estantería). `decor.js` añade su parte y deja sus ayudantes de modelado en `OfficeCtx.helpers` para que `lounge.js` los reutilice. `boot.js` va al final porque el ajuste de materiales tiene que recorrer todo lo que ya esté en la escena.
 
 ## Flujo local (computadora central + OpenCode)
+
+El puente local (`bridge/mission-server.mjs`) sirve la propia oficina y expone `/state`, `/last` y `/mission`. La API exige un token (cabecera `X-Oficina-Token`) y el puente rechaza `Host`/`Origin` no locales, admite una sola misión a la vez y la corta pasado un tiempo máximo. El detalle de seguridad está en el README.
 
 Además del flujo en la nube, la oficina puede ejecutar los agentes en la propia máquina:
 

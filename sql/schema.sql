@@ -1,4 +1,4 @@
--- Esquema de referencia para Oficina Digital 3D (Supabase / PostgreSQL).
+-- Esquema de referencia para La Oficina de Agentes (Supabase / PostgreSQL).
 -- Es idempotente: se puede ejecutar varias veces. Si tu proyecto ya tiene la
 -- tabla creada, no hace falta correrlo.
 
