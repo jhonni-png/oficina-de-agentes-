@@ -12,10 +12,20 @@
   <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/OrbitControls.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+  <script>
+    // Si Three.js no cargó (sin internet o CDN caído), la escena 3D no puede arrancar: avisamos en pantalla.
+    if (typeof THREE === 'undefined' || !THREE.OrbitControls) document.documentElement.setAttribute('data-cdn-error', '1');
+  </script>
 
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
+
+  <noscript><div class="boot-notice">La Oficina de Agentes necesita JavaScript para dibujar la escena 3D.</div></noscript>
+  <div id="cdn-error" class="boot-notice" role="alert">
+    No se pudo cargar Three.js desde internet, así que la escena 3D no puede dibujarse.
+    Revisa tu conexión y recarga la página.
+  </div>
 
   <div id="canvas-3d-container"></div>
 
@@ -45,7 +55,7 @@
     <button id="btn-demo" type="button" aria-pressed="false">Modo Demo</button>
     <button id="btn-settings" type="button">Configuración</button>
   </div>
-  <div id="conn-status" data-state="off">Sin conexión a Supabase</div>
+  <div id="conn-status" data-state="off" role="status" aria-live="polite">Sin conexión a Supabase</div>
 
   <div id="agent-bar"></div>
 

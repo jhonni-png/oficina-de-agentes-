@@ -87,10 +87,11 @@ oficina-de-agentes-/
 │   ├── computer.js     # Computadora central 3D + panel de terminal (clic)
 │   └── bridge.js       # Polling del puente local + eventos del panel
 ├── bridge/
-│   └── mission-server.mjs  # Puente HTTP -> OpenCode (127.0.0.1:8787)
+│   └── mission-server.mjs  # Puente HTTP -> OpenCode (127.0.0.1:8787); también sirve la oficina
 ├── scripts/
-│   ├── start.ps1       # Arranque local en Windows
-│   └── start.sh        # Arranque local en macOS/Linux
+│   ├── start.ps1 / stop.ps1  # Arrancar / detener en Windows
+│   ├── start.sh  / stop.sh   # Arrancar / detener en macOS/Linux
+│   └── check.mjs             # Comprueba la sintaxis de todo el JS
 ├── .opencode/
 │   ├── commands/oficina.md # Comando /oficina de OpenCode
 │   ├── agents/             # director + los 4 agentes
@@ -98,6 +99,10 @@ oficina-de-agentes-/
 ├── state/              # Estado en vivo del puente (generado, ignorado)
 ├── sql/
 │   └── schema.sql      # Tabla agent_states, RLS y Realtime (referencia)
+├── test/
+│   └── bridge.test.mjs # Pruebas del puente (usan un opencode falso, no gastan cuota)
+├── .github/workflows/ci.yml  # CI: sintaxis + pruebas en Node 18 y 22
+├── package.json        # npm start / npm run check / npm test (sin dependencias)
 ├── docs/
 │   └── arquitectura.md # Flujo de datos, capas y seguridad
 ├── vercel.json         # Cabeceras de seguridad para el despliegue
@@ -112,7 +117,7 @@ Los repos hermanos ([**opencode-pipeline**](https://github.com/jhonni-png/openco
 
 ## 🖥️ Centro de comando local (computadora de la mesa)
 
-Además del flujo n8n/Supabase, puedes ejecutar los agentes tú mismo en tu máquina con OpenCode:
+Además del flujo n8n/Supabase, puedes ejecutar los agentes tú mismo en tu máquina con OpenCode. Necesitas **Node.js 18+** y [OpenCode](https://opencode.ai/) instalado.
 
 ```powershell
 # Windows
@@ -121,28 +126,44 @@ Además del flujo n8n/Supabase, puedes ejecutar los agentes tú mismo en tu máq
 
 ```bash
 # macOS / Linux
-chmod +x scripts/start.sh && ./scripts/start.sh
+chmod +x scripts/start.sh scripts/stop.sh && ./scripts/start.sh
 ```
 
-El script carga las claves en memoria (entrada oculta), instala el comando `/oficina` en OpenCode, arranca el puente en `127.0.0.1:8787` y abre la oficina. Luego:
+El script pide tus claves (entrada oculta, solo en memoria), instala el comando `/oficina` en OpenCode, arranca el puente en `127.0.0.1:8787` y **abre la oficina servida por el propio puente**, ya con el token puesto. No hace falta Live Server. Para detenerlo: `./scripts/stop.sh` (o `.\scripts\stop.ps1`). Si lo vuelves a arrancar, reemplaza al puente anterior.
+
+Ya dentro:
 
 1. Haz clic en la **computadora de la mesa** (o en el aviso 🖥️). Se enfoca la cámara y se abre el terminal.
 2. Escribe la tarea (p. ej. `crea una API REST en Node`). El prefijo `/oficina` se añade solo.
 3. `js/mission.js` hace `POST /mission` al puente; este lanza `opencode run /oficina <tarea>`.
-4. `js/bridge.js` consulta `/state` cada 1.5 s y pinta el estado de cada agente en su monitor 3D.
+4. `js/bridge.js` consulta `/state` cada 1,5 s y pinta el estado de cada agente en su monitor 3D. Si un agente falla, su monitor se pone en rojo con el motivo.
 
-También puedes escribir `/oficina <tarea>` directamente en el chat de OpenCode. Los 4 agentes (modelos 100 % gratuitos) trabajan en cadena y dejan sus artefactos en `.opencode/pipeline/<slug>/`. **No hay claves en archivos**: solo variables de entorno.
+También puedes escribir `/oficina <tarea>` directamente en el chat de OpenCode. Los 4 agentes (modelos 100 % gratuitos) trabajan en cadena y dejan sus artefactos en `.opencode/pipeline/<slug>/`. **No hay claves en archivos**: solo variables de entorno. La salida de OpenCode queda en `state/opencode.log`.
 
 > Si el puente no está activo, la oficina sigue funcionando en **Modo Demo** o con tu flujo n8n/Supabase de siempre.
 
+### 🔐 Seguridad del puente
+
+El puente ejecuta comandos en tu máquina, así que no confía en cualquier página web abierta en tu navegador:
+
+- Escucha **solo en `127.0.0.1`** y rechaza cabeceras `Host` u `Origin` que no sean locales.
+- Toda la API (`/state`, `/last`, `/mission`) exige un **token** en la cabecera `X-Oficina-Token`. Se genera en cada arranque, se guarda en `state/bridge.token` (permisos 600) y viaja a la página en el `#` de la URL, que el navegador no envía a ningún servidor.
+- El token solo se manda al puente, **nunca** a un webhook de n8n.
+- Cuerpo máximo de 16 KB, misión de hasta 2000 caracteres, **una misión a la vez** y tiempo máximo de 30 min por misión (`OFICINA_TIMEOUT_MIN`).
+- Solo sirve `index.html`, `css/` y `js/`; el resto del repositorio no es accesible por HTTP.
+
+Variables opcionales: `OFICINA_PORT`, `OFICINA_MODEL`, `OFICINA_TIMEOUT_MIN`, `OFICINA_ORIGINS` (orígenes extra permitidos, separados por comas). Si arrancas el puente a mano (`npm start`), imprime la URL con el token.
+
 ## 🚀 Ejecutar en local
 
-Abre la carpeta en VS Code y usa **Live Server** (clic derecho en `index.html` → *Open with Live Server*). También sirve cualquier servidor estático:
+Para el modo local completo usa los scripts de arriba. Si solo quieres ver la escena (Modo Demo o Supabase), sirve cualquier servidor estático:
 
 ```bash
 python3 -m http.server 5500
 # luego abre http://localhost:5500
 ```
+
+O abre la carpeta en VS Code y usa **Live Server** (clic derecho en `index.html` → *Open with Live Server*). Necesitas internet: Three.js y Supabase se cargan desde un CDN, y si no llegan la página lo avisa en pantalla.
 
 Si solo quieres curiosear, pulsa **Modo Demo**: los agentes cambian de estado solitos, sin Supabase y sin gastar tokens.
 
@@ -211,6 +232,17 @@ where agent_id = 'planificador';
 
 > Una URL de webhook pública la puede invocar cualquiera. Antes de exponer el sitio, protégela con autenticación validada en servidor o con un proxy (por ejemplo, una función de Vercel que guarde los secretos como variables privadas).
 
+## 🔁 Agentes compartidos con opencode-pipeline
+
+Los cuatro agentes, el director y los modelos (`.opencode/agents/` y `opencode.jsonc`) son los mismos que usa [**opencode-pipeline**](https://github.com/jhonni-png/opencode-pipeline), que es la **fuente única**. Pa' no mantenerlos en dos sitios:
+
+```bash
+npm run check:agents   # ¿están al día con opencode-pipeline?
+npm run sync-agents    # trae la última versión (o: node scripts/sync-agents.mjs --from ../opencode-pipeline)
+```
+
+El comando `/oficina` es propio de este repo y no se toca.
+
 ## 🎨 Cambiar el look (o mover los muebles)
 
 - **Mural y cuadro de gatos:** se pintan con canvas en `js/decor.js` (`muralTex` y `catsTex`). Cambia los textos, los colores o el dibujo.
@@ -226,6 +258,7 @@ where agent_id = 'planificador';
 
 - [ ] La página carga el modelo 3D sin errores en la consola
 - [ ] Se ve la sala de descanso con sillón, nevera, billar y baño
+- [ ] `npm run check` y `npm test` pasan
 - [ ] Supabase conecta y carga los cuatro agentes
 - [ ] Un cambio SQL se refleja en el monitor en tiempo real
 - [ ] La página publicada en Vercel carga bien
