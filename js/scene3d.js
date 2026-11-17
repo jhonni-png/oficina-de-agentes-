@@ -1384,6 +1384,12 @@
       if (s.lampLight) s.lampLight.intensity = 0.4 + Math.sin(t * 1.8 + s.phase) * 0.08;
     }
 
+    // Ganchos de la computadora central (js/computer.js)
+    if (typeof window.updateComputerCamAnim === 'function') window.updateComputerCamAnim(dt);
+    if (typeof window.updateComputerStatus === 'function') {
+      window.updateComputerStatus(AGENT_IDS.map((id) => (window.agentState[id] || {}).status || 'idle'));
+    }
+
     controls.update();
     renderer.render(scene, camera);
   }
@@ -1406,7 +1412,8 @@
      Esos archivos se cargan después de este y necesitan unos cuantos objetos
      que viven dentro de esta función. */
   window.OfficeCtx = {
-    scene, renderer, animate, createPlant, roundRect,
+    scene, renderer, camera, controls, centralTable, animate, createPlant, roundRect,
+    STATUS_HEX, PALETTE,
     shelf: { bookshelf, shelfWood, brassDetail, bookColors }
   };
 })();

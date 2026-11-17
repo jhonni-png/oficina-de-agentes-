@@ -74,5 +74,12 @@ function handleAgentUpdate(agentId, status, screenText, source) {
   } catch (e) {
     log('Error en updateAgentMonitor3D: ' + e.message, 'err');
   }
+  // Escribir también en la terminal de la computadora central
+  try {
+    if (typeof window.pushCentralLog === 'function') {
+      const level = status === 'error' ? 'err' : status === 'done' ? 'ok' : 'info';
+      window.pushCentralLog('[' + agentId.toUpperCase() + '] ' + (screenText || STATUS_LABEL[status] || status), level);
+    }
+  } catch (_) { /* la computadora es opcional */ }
 }
 

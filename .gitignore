@@ -12,3 +12,7 @@ Thumbs.db
 # Dependencias y Vercel
 node_modules/
 .vercel/
+
+# Estado en vivo del puente local (se genera en runtime, nunca versionar)
+state/
+*.log

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>AI Agent 3D Office — Executive Suite</title>
+  <title>Oficina de Agentes — Centro de Comando Multiagente</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -18,6 +18,26 @@
 <body>
 
   <div id="canvas-3d-container"></div>
+
+  <div id="computer-hint" title="Abrir terminal de la computadora central">🖥️ Computadora central — haz clic aquí o en la pantalla 3D para delegar tareas</div>
+
+  <div id="computer-modal" role="dialog" aria-modal="true" aria-labelledby="computer-title">
+    <div class="computer-window">
+      <div class="computer-titlebar">
+        <span><span class="dot"></span><span id="computer-title">CENTRAL TERMINAL · v1.0</span></span>
+        <span class="computer-actions">
+          <button id="computer-clear" type="button">Limpiar</button>
+          <button id="computer-close" type="button">✕ Cerrar</button>
+        </span>
+      </div>
+      <div id="computer-output" aria-live="polite"></div>
+      <div class="computer-inputbar">
+        <span class="computer-prompt">&gt;</span>
+        <input id="computer-input" type="text" placeholder="Escribe tu tarea... (ej: crear una API REST)" autocomplete="off" />
+        <button id="computer-send" class="primary" type="button">Enviar ↵</button>
+      </div>
+    </div>
+  </div>
 
   <div id="hud-top">
     <input id="mission-input" type="text" placeholder="Escribe tu misión para los agentes..." autocomplete="off" />
@@ -63,8 +83,10 @@
 <script src="js/decor.js"></script>
 <script src="js/lounge.js"></script>
 <script src="js/boot.js"></script>
+<script src="js/computer.js"></script>
 <script src="js/supabase.js"></script>
 <script src="js/mission.js"></script>
 <script src="js/ui.js"></script>
+<script src="js/bridge.js"></script>
 </body>
 </html>

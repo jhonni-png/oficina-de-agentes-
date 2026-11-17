@@ -42,6 +42,29 @@ Los scripts son clásicos (no módulos) y se cargan en este orden: `core` → `s
 
 `scene3d.js` construye la escena base y, al terminar, publica en `window.OfficeCtx` lo que los demás archivos necesitan (`scene`, `renderer`, `animate`, `createPlant`, `roundRect` y la estantería). `decor.js` añade su parte y deja sus ayudantes de modelado en `OfficeCtx.helpers` para que `lounge.js` los reutilice. `boot.js` va al final porque el ajuste de materiales tiene que recorrer todo lo que ya esté en la escena.
 
+## Flujo local (computadora central + OpenCode)
+
+Además del flujo en la nube, la oficina puede ejecutar los agentes en la propia máquina:
+
+```
+┌─────────────┐  /oficina <tarea>   ┌──────────────────┐  POST /mission  ┌───────────────┐
+│ Computadora │ ──────────────────► │ mission.js       │ ──────────────► │ bridge/       │
+│ central 3D  │  (js/computer.js)   │ (js/bridge.js)   │                 │ mission-server│
+└──────▲──────┘                     └──────────────────┘                 └───────┬───────┘
+       │                                                                        │ opencode run /oficina
+       │ /state (polling 1.5s)                                                  ▼
+       │                                                              ┌──────────────────┐
+       └──────────────────────────────────────────────────────────────  │ pipeline OpenCode│
+                                                                       │ 4 agentes gratuitos│
+                                                                       └──────────────────┘
+```
+
+- `js/computer.js` crea el portátil en `centralTable`, expone `window.pushCentralLog` y usa raycasting para abrir el panel al hacer clic. Se apoya en `OfficeCtx` (que ahora expone también `camera`, `controls`, `centralTable`, `PALETTE` y `STATUS_HEX`).
+- `js/mission.js` detecta `/oficina` y envía a n8n **o** al puente local (`127.0.0.1:8787/mission`).
+- `bridge/mission-server.mjs` lanza `opencode run /oficina <tarea>` y deriva el estado de cada agente de los artefactos en `.opencode/pipeline/<slug>/`, sirviéndolo en `GET /state`.
+- `js/bridge.js` hace polling de `/state` y llama a `handleAgentUpdate`. Supabase queda como respaldo opcional.
+- Modelos gratuitos: Planificador (Nemotron/OpenRouter), Arquitecto (Gemini Flash-Lite), Constructor (GPT-OSS/Groq), Auditor (Nemotron Lightning/NIM). Configurados en `.opencode/opencode.jsonc`.
+
 ## Seguridad
 
 - El navegador usa solo la clave **publishable** de Supabase y tiene **solo lectura** gracias a RLS.

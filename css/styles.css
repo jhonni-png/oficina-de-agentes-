@@ -101,3 +101,53 @@ button.active { background: var(--working); border-color: var(--working); color:
   #conn-status { top: 124px; }
 }
 @media (prefers-reduced-motion: reduce) { #logs-panel { transition: none; } }
+
+/* ===== COMPUTADORA CENTRAL (panel de terminal interactivo) ===== */
+#computer-hint {
+  position: fixed; left: 50%; bottom: 92px; transform: translateX(-50%);
+  padding: 7px 14px; font-size: 12px; color: var(--text);
+  background: var(--panel); border: 1px solid var(--line); border-left: 4px solid var(--working);
+  border-radius: 20px; backdrop-filter: blur(10px); z-index: 12;
+  cursor: pointer; user-select: none; opacity: .92;
+}
+#computer-hint:hover { background: #efe8da; opacity: 1; }
+
+#computer-modal { position: fixed; inset: 0; background: rgba(20,15,8,.55); display: none; align-items: center; justify-content: center; z-index: 40; padding: 16px; }
+#computer-modal.open { display: flex; }
+.computer-window {
+  width: min(760px, 100%); height: min(620px, 90vh); display: flex; flex-direction: column;
+  background: #0a0a0a; border: 2px solid #8c7f6e; border-radius: 10px;
+  box-shadow: 0 24px 80px rgba(0,0,0,.6), inset 0 0 0 1px #2a241d; overflow: hidden;
+}
+.computer-titlebar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 12px; background: #161616; border-bottom: 1px solid #2a241d;
+  color: #8ff0a4; font: 700 13px var(--font-mono);
+}
+.computer-titlebar .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: #6f9a7a; margin-right: 8px; }
+.computer-actions { display: flex; gap: 6px; }
+.computer-titlebar button { padding: 4px 10px; font-size: 12px; background: #2a241d; color: #eadcc8; border: 1px solid #4a4038; }
+.computer-titlebar button:hover { background: #4a4038; }
+#computer-output {
+  flex: 1; overflow-y: auto; padding: 14px 16px;
+  font: 13px/1.55 var(--font-mono); color: #8ff0a4; background: #0a0a0a;
+  white-space: pre-wrap; word-break: break-word;
+}
+#computer-output .ln { margin-bottom: 2px; }
+#computer-output .ts { color: #7a7164; margin-right: 8px; }
+#computer-output .lvl-info { color: #8ff0a4; }
+#computer-output .lvl-warn { color: #f0d060; }
+#computer-output .lvl-err  { color: #f07060; }
+#computer-output .lvl-ok   { color: #70d0f0; }
+#computer-output .lvl-dim  { color: #7a7164; }
+.computer-inputbar { display: flex; gap: 8px; padding: 10px 12px; background: #161616; border-top: 1px solid #2a241d; }
+.computer-prompt { color: #8ff0a4; font: 700 13px var(--font-mono); align-self: center; }
+#computer-input {
+  flex: 1; min-width: 0; padding: 10px 12px; font: 13px var(--font-mono);
+  color: #8ff0a4; background: #0a0a0a; border: 1px solid #4a4038; border-radius: 6px;
+}
+#computer-input::placeholder { color: #5a5248; }
+#computer-input:focus-visible { outline: 2px solid #8ff0a4; outline-offset: 1px; }
+#computer-send { background: #2f4258; border-color: #2f4258; color: #fff; font-weight: 700; }
+#computer-send:hover { background: #3f566f; }
+@media (max-width: 640px) { .computer-window { height: 92vh; } }

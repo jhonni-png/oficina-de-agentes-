@@ -6,6 +6,8 @@ Y ojo: esto no es una oficina-cárcel sin alma. Tiene mural, gatos motivacionale
 
 Es un sitio estático (HTML + CSS + JavaScript puro), sin build ni nada raro.
 
+> **🖥️ Centro de comando local (novedad):** hay una **computadora central** en la mesa de juntas. Haz clic en ella (o en el aviso 🖥️) para abrir un terminal desde el que delegas tareas. Un **puente local** (`bridge/mission-server.mjs`) recibe la misión y lanza el comando `/oficina` de OpenCode, que ejecuta el pipeline real de los 4 agentes con modelos gratuitos. Supabase/n8n siguen funcionando como alternativa en la nube.
+
 ## 👀 El tour de la oficina
 
 | Qué hay | Detalle | Dónde vive |
@@ -14,6 +16,7 @@ Es un sitio estático (HTML + CSS + JavaScript puro), sin build ni nada raro.
 | 🐱 **Cuadro de gatos** | Tres gatos grandotes con su «¡TÚ PUEDES!». Motivación laboral nivel experto | `js/decor.js` |
 | 📚 **Estantería surtida** | Libros por los dos lados, pilas acostadas, globo, jarrón con plantita, trofeo, vela, un marco con foto y un gatito negro de adorno | `js/decor.js` |
 | 🪟 **Cortinas** | Cortinas con pliegues a los lados de la ventana del fondo | `js/decor.js` |
+| 🖥️ **Computadora central** | Portátil 2× sobre la mesa de juntas: clic para enfocar y abrir el terminal de tareas | `js/computer.js` |
 | 🎨 **Tonos oscuros y cálidos** | Muros café-grisáceo, piso oscuro y mesa central en tono madera. Casi nada de blanco quemando la vista | `js/scene3d.js`, `js/decor.js` |
 | 💡 **Luz cálida** | Luces en tono durazno en el techo y los escritorios, nada de luz de hospital | `js/scene3d.js` |
 | 🛋️ **Sala de descanso** | Un cuarto aparte, con su propia entrada, pa' no mezclar el relax con la oficina | `js/lounge.js` |
@@ -48,8 +51,20 @@ oficina-de-agentes-/
 │   ├── lounge.js       # Sala de descanso: sillón, nevera, billar, baño
 │   ├── boot.js         # Ajuste de materiales y arranque de la animación
 │   ├── supabase.js     # Conexión y suscripción a Realtime
-│   ├── mission.js      # Envío de la misión al webhook de n8n
-│   └── ui.js           # Modo Demo, configuración, logs y arranque
+│   ├── mission.js      # Envío de la misión (n8n o puente local) + /oficina
+│   ├── ui.js           # Modo Demo, configuración, logs y arranque
+│   ├── computer.js     # Computadora central 3D + panel de terminal (clic)
+│   └── bridge.js       # Polling del puente local + eventos del panel
+├── bridge/
+│   └── mission-server.mjs  # Puente HTTP -> OpenCode (127.0.0.1:8787)
+├── scripts/
+│   ├── start.ps1       # Arranque local en Windows
+│   └── start.sh        # Arranque local en macOS/Linux
+├── .opencode/
+│   ├── commands/oficina.md # Comando /oficina de OpenCode
+│   ├── agents/             # director + los 4 agentes
+│   └── opencode.jsonc      # Modelos gratuitos (Groq/OpenRouter/Gemini/NIM)
+├── state/              # Estado en vivo del puente (generado, ignorado)
 ├── sql/
 │   └── schema.sql      # Tabla agent_states, RLS y Realtime (referencia)
 ├── docs/
@@ -63,6 +78,31 @@ oficina-de-agentes-/
 Los scripts son clásicos (no módulos), así que **el orden importa**: `boot.js` tiene que ir después de `decor.js` y `lounge.js` porque ajusta los materiales de todo lo que ya esté en la escena. La explicación completa del flujo (navegador → n8n → Supabase → monitores 3D) está en [`docs/arquitectura.md`](docs/arquitectura.md).
 
 La red de agentes en n8n expuesta vía MCP vive en el repo hermano [**claude_agents-**](https://github.com/jhonni-png/claude_agents-).
+
+## 🖥️ Centro de comando local (computadora de la mesa)
+
+Además del flujo n8n/Supabase, puedes ejecutar los agentes tú mismo en tu máquina con OpenCode:
+
+```powershell
+# Windows
+.\scripts\start.ps1
+```
+
+```bash
+# macOS / Linux
+chmod +x scripts/start.sh && ./scripts/start.sh
+```
+
+El script carga las claves en memoria (entrada oculto), instala el comando `/oficina` en OpenCode, arranca el puente en `127.0.0.1:8787` y abre la oficina. Luego:
+
+1. Haz clic en la **computadora de la mesa** (o en el aviso 🖥️). Se enfoca la cámara y se abre el terminal.
+2. Escribe la tarea (p. ej. `crea una API REST en Node`). El prefijo `/oficina` se añade solo.
+3. `js/mission.js` hace `POST /mission` al puente; este lanza `opencode run /oficina <tarea>`.
+4. `js/bridge.js` consulta `/state` cada 1.5 s y pinta el estado de cada agente en su monitor 3D.
+
+También puedes escribir `/oficina <tarea>` directamente en el chat de OpenCode. Los 4 agentes (modelos 100 % gratuitos) trabajan en cadena y dejan sus artefactos en `.opencode/pipeline/<slug>/`. **No hay claves en archivos**: solo variables de entorno.
+
+> Si el puente no está activo, la oficina sigue funcionando en **Modo Demo** o con tu flujo n8n/Supabase de siempre.
 
 ## 🚀 Ejecutar en local
 
